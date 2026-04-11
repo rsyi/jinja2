@@ -1,0 +1,39 @@
+[package]
+name = "jinja2rust"
+version = "0.1.0"
+edition = "2021"
+description = "A Jinja2-compatible template engine for Rust, built on minijinja"
+license = "Apache-2.0"
+
+[dependencies]
+minijinja = { path = "minijinja/minijinja", features = [
+    "builtins",
+    "debug",
+    "deserialization",
+    "macros",
+    "multi_template",
+    "adjacent_loop_items",
+    "std_collections",
+    "serde",
+    "loader",
+    "json",
+    "urlencode",
+    "loop_controls",
+    "unicode",
+    "fuel",
+    "preserve_order",
+    "custom_syntax",
+    "speedups",
+] }
+minijinja-contrib = { path = "minijinja/minijinja-contrib", features = [
+    "pycompat",
+    "rand",
+    "wordcount",
+    "wordwrap",
+    "html_entities",
+] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[dev-dependencies]
+similar-asserts = "1.4"
