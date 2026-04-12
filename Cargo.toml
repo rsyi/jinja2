@@ -1,6 +1,6 @@
 [package]
 name = "jinja2"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 description = "A Jinja2-compatible template engine for Rust with full feature parity, built on minijinja"
 license = "Apache-2.0"
