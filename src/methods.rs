@@ -60,9 +60,7 @@ fn extended_string_methods(value: &Value, method: &str, args: &[Value]) -> Resul
     match method {
         "center" => {
             let (width, fillchar): (usize, Option<&str>) = from_args(args)?;
-            let fill = fillchar
-                .and_then(|s| s.chars().next())
-                .unwrap_or(' ');
+            let fill = fillchar.and_then(|s| s.chars().next()).unwrap_or(' ');
             let len = s.chars().count();
             if len >= width {
                 Ok(Value::from(s))
@@ -83,9 +81,7 @@ fn extended_string_methods(value: &Value, method: &str, args: &[Value]) -> Resul
         }
         "ljust" => {
             let (width, fillchar): (usize, Option<&str>) = from_args(args)?;
-            let fill = fillchar
-                .and_then(|s| s.chars().next())
-                .unwrap_or(' ');
+            let fill = fillchar.and_then(|s| s.chars().next()).unwrap_or(' ');
             let len = s.chars().count();
             if len >= width {
                 Ok(Value::from(s))
@@ -99,9 +95,7 @@ fn extended_string_methods(value: &Value, method: &str, args: &[Value]) -> Resul
         }
         "rjust" => {
             let (width, fillchar): (usize, Option<&str>) = from_args(args)?;
-            let fill = fillchar
-                .and_then(|s| s.chars().next())
-                .unwrap_or(' ');
+            let fill = fillchar.and_then(|s| s.chars().next()).unwrap_or(' ');
             let len = s.chars().count();
             if len >= width {
                 Ok(Value::from(s))
@@ -168,10 +162,7 @@ fn seq_methods(value: &Value, method: &str, args: &[Value]) -> Result<Value, Err
                     }
                 }
             }
-            Err(Error::new(
-                ErrorKind::InvalidOperation,
-                "value not in list",
-            ))
+            Err(Error::new(ErrorKind::InvalidOperation, "value not in list"))
         }
         _ => Err(Error::from(ErrorKind::UnknownMethod)),
     }
@@ -187,7 +178,10 @@ fn map_methods(value: &Value, method: &str, args: &[Value]) -> Result<Value, Err
         "pop" => {
             // dict.pop(key[, default]) - try to get value, fall back to default
             let key = args.first().ok_or_else(|| {
-                Error::new(ErrorKind::MissingArgument, "pop() requires at least 1 argument")
+                Error::new(
+                    ErrorKind::MissingArgument,
+                    "pop() requires at least 1 argument",
+                )
             })?;
             match value.get_item(key) {
                 Ok(v) if !v.is_undefined() => Ok(v),
@@ -279,12 +273,10 @@ mod tests {
     fn test_dict_setdefault() {
         let v = Value::from_serialize(&serde_json::json!({"a": 1}));
         // Key exists
-        let result =
-            map_methods(&v, "setdefault", &[Value::from("a"), Value::from(99)]).unwrap();
+        let result = map_methods(&v, "setdefault", &[Value::from("a"), Value::from(99)]).unwrap();
         assert_eq!(result.to_string(), "1");
         // Key doesn't exist
-        let result =
-            map_methods(&v, "setdefault", &[Value::from("b"), Value::from(99)]).unwrap();
+        let result = map_methods(&v, "setdefault", &[Value::from("b"), Value::from(99)]).unwrap();
         assert_eq!(result.to_string(), "99");
     }
 }
