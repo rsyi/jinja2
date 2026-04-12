@@ -218,71 +218,48 @@ fn html_escape(s: &str) -> String {
 }
 
 /// Find URLs in text, returning (start, end, full_url) tuples.
+///
+/// Operates on byte offsets directly since URL prefixes are ASCII.
 fn find_urls(text: &str) -> Vec<(usize, usize, String)> {
     let mut results = Vec::new();
-    let prefixes = ["https://", "http://", "www."];
-
-    let chars: Vec<char> = text.chars().collect();
-    let len = chars.len();
+    let prefixes: &[&str] = &["https://", "http://", "www."];
+    let bytes = text.as_bytes();
+    let len = bytes.len();
     let mut i = 0;
 
     while i < len {
-        let remaining: String = chars[i..].iter().collect();
-
-        let mut matched_prefix = None;
-        for prefix in &prefixes {
-            if remaining.starts_with(prefix) {
-                matched_prefix = Some(*prefix);
-                break;
-            }
-        }
+        let remaining = &text[i..];
+        let matched_prefix = prefixes.iter().find(|p| remaining.starts_with(**p));
 
         if let Some(prefix) = matched_prefix {
-            let start_byte = text
-                .char_indices()
-                .nth(i)
-                .map(|(idx, _)| idx)
-                .unwrap_or(text.len());
+            let start = i;
 
             // Find end of URL
-            let mut j = i + prefix.chars().count();
-            while j < len {
-                let c = chars[j];
-                if c.is_whitespace() || c == '<' || c == '>' || c == '"' || c == '\'' {
+            let mut end = i + prefix.len();
+            while end < len {
+                let b = bytes[end];
+                if b.is_ascii_whitespace() || matches!(b, b'<' | b'>' | b'"' | b'\'') {
                     break;
                 }
-                j += 1;
+                end += 1;
             }
 
             // Strip trailing punctuation
-            while j > i
-                && (chars[j - 1] == '.'
-                    || chars[j - 1] == ','
-                    || chars[j - 1] == ')'
-                    || chars[j - 1] == '!'
-                    || chars[j - 1] == '?')
-            {
-                j -= 1;
+            while end > start && matches!(bytes[end - 1], b'.' | b',' | b')' | b'!' | b'?') {
+                end -= 1;
             }
 
-            let end_byte = text
-                .char_indices()
-                .nth(j)
-                .map(|(idx, _)| idx)
-                .unwrap_or(text.len());
-
-            let url_text = &text[start_byte..end_byte];
-            let full_url = if prefix == "www." {
-                format!("http://{}", url_text)
-            } else {
-                url_text.to_string()
-            };
-
+            let url_text = &text[start..end];
             if url_text.len() > prefix.len() {
-                results.push((start_byte, end_byte, full_url));
+                let full_url = if *prefix == "www." {
+                    format!("http://{}", url_text)
+                } else {
+                    url_text.to_string()
+                };
+                results.push((start, end, full_url));
             }
 
-            i = j;
+            i = end;
         } else {
             i += 1;
         }
