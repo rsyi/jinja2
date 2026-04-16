@@ -94,6 +94,12 @@ pub fn add_jinja2_compat(env: &mut Environment<'_>) {
 
     // Register additional tests
     env.add_test("callable", tests_builtin::is_callable);
+
+    // Register mutable list constructor for templates that need list mutation
+    env.add_function("_mklist", methods::mklist);
+
+    // Register mutable dict constructor for templates that need dict mutation
+    env.add_function("_mkdict", methods::mkdict);
 }
 
 #[cfg(test)]
